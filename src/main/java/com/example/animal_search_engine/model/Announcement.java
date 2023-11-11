@@ -1,5 +1,6 @@
 package com.example.animal_search_engine.model;
 
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,6 +23,8 @@ public class Announcement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
+    String header;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;
@@ -30,21 +33,23 @@ public class Announcement {
     @Column(name = "updated_at", nullable = false)
     LocalDateTime updatedAt;
 
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consumer_id")
+
     Consumer consumer;
 
-    @OneToOne(mappedBy ="announcement",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     Animal animal;
 
-    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<AnimalLocation> animalLocation;
 
-    //String photoUrl;
 
-    @ElementCollection
+    @OneToOne( cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    AnimalLocation animalLocation;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "announcement_photos", joinColumns = @JoinColumn(name = "announcement_id"))
     @Column(name = "photo_url")
     List<String> photoUrls = new ArrayList<>();
+
 }

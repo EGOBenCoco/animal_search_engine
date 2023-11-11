@@ -1,6 +1,6 @@
 package com.example.animal_search_engine.enums;
 
-public enum AnimalGender {
+public enum Gender {
     MALE,
     FEMALE
 }
