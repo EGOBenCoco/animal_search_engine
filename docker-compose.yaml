@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  backend-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      mysql-container:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/animal_search
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=qwerty
+    networks:
+      - for-example-boot
+  mysql-container:
+    image: mysql
+    ports:
+      - 3308:3306
+    environment:
+      - MYSQL_DATABASE=animal_search
+      - MYSQL_ROOT_PASSWORD=qwerty
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - for-example-boot
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      retries: 10
+      interval: 3s
+      timeout: 30s
+volumes:
+  mysql-data:
+networks:
+  for-example-boot:
+    name: for-example-boot
