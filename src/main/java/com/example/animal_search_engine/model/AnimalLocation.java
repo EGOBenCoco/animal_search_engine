@@ -1,9 +1,7 @@
 package com.example.animal_search_engine.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,14 +11,19 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
+@Table(name = "animal_location")
 public class AnimalLocation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
+    @NotBlank(message = "Latitude is required")
     double latitude;
+
+    @NotBlank(message = "longitude is required")
     double longitude;
+
+    @NotBlank(message = "City is required")
     String city;
 }

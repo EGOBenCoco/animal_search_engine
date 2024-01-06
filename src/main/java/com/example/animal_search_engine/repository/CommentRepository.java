@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -13,11 +14,9 @@ import java.util.Optional;
 public interface CommentRepository extends JpaRepository<Comment,Integer> {
 
 
-    Page<Comment> findByAnnouncementId(int id, Pageable pageable);
 
-    @EntityGraph(attributePaths = "announcement")
-    Page<Comment> findByConsumerId(int id,Pageable pageable);
+    @Query("SELECT c FROM Comment c ORDER BY c.createdAt DESC ")
+    Page<Comment> findAllByAnnouncementId(int id, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"consumer","announcement"}, type = EntityGraph.EntityGraphType.LOAD)
-    Optional<Comment> findById(int id);
+
 }

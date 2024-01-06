@@ -1,4 +1,4 @@
-package com.example.animal_search_engine.dao.response;
+package com.example.animal_search_engine.dto.responce;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

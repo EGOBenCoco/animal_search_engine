@@ -12,40 +12,38 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 
 @Repository
-public interface AnnouncementRepository extends JpaRepository<Announcement,Integer> {
+public interface AnnouncementRepository extends JpaRepository<Announcement, Integer> {
+    @EntityGraph(attributePaths = {"photoUrls"})
+    @Query("SELECT a FROM Announcement a  WHERE a.consumer.id = :id ORDER BY a.createdAt DESC")
+    Page<Announcement> findAllByConsumerId(@Param("id") int id,Pageable pageable);
 
-    @EntityGraph(attributePaths = {"consumer.contactInfos", "animal", "animalLocation"}, type = EntityGraph.EntityGraphType.LOAD)
-    @Query("SELECT a FROM Announcement a  WHERE a.id = :id")
-    Optional<Announcement> findById(@Param("id") int id);
-
-
-    @EntityGraph(attributePaths = { "animal", "animalLocation"}, type = EntityGraph.EntityGraphType.LOAD)
-    @Query("SELECT a FROM Announcement a JOIN FETCH a.consumer c JOIN FETCH c.contactInfos  WHERE c.id = :id")
-    List<Announcement> findByConsumerId(@Param("id") int id);
-
-
-    @Query("SELECT a FROM Announcement  a LEFT JOIN FETCH a.photoUrls ")
+    @EntityGraph(attributePaths = {"consumer.contactInfos","animal","animalLocation","photoUrls"})
+    Optional<Announcement> findById(int id);
+    @Query("SELECT a FROM Announcement a JOIN FETCH a.photoUrls ORDER BY a.createdAt DESC ")
     Page<Announcement> findAllAnnouncements(Pageable pageable);
 
 
-    @EntityGraph(attributePaths = "photoUrls")
- @Query("SELECT a FROM Announcement a WHERE " +
-         "(:type IS NULL OR a.animal.type = :type) AND " +
-         "(:breed IS NULL OR a.animal.breed = :breed) AND " +
-         "(:gender IS NULL OR a.animal.gender = :gender) AND " +
-         "(:city IS NULL OR a.animalLocation.city = :city)")
+    @EntityGraph(attributePaths = {"photoUrls"})
+    @Query("SELECT a FROM Announcement a WHERE " +
+            "(:type IS NULL OR a.animal.type = :type) AND " +
+            "(:breed IS NULL OR a.animal.breed = :breed) AND " +
+            "(:gender IS NULL OR a.animal.gender = :gender) AND " +
+            "(:city IS NULL OR a.animalLocation.city = :city)")
     Page<Announcement> findByFilters(
             @Param("type") Type type,
             @Param("breed") Breed breed,
             @Param("gender") Gender gender,
             @Param("city") String city,
             Pageable pageable
-    );    @Query("select a from Announcement a join fetch a.photoUrls where a.id =:id")
+    );
+
+
+
+    @Query("select a from Announcement a JOIN FETCH a.photoUrls WHERE a.id =:id")
     Optional<Announcement> findByIdWithPhotoUrls(@Param("id") int id);
 
 

@@ -13,19 +13,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AnnouncementService {
-    List<String> getPhotosByAnnouncementId(int entityId);
-    List<Announcement> getAnnouncementByConsumerId(int entityId);
-    Optional<Announcement> getAnnouncementById(int announcementId);
-    Page<AnnouncementResponce> filterAnnouncements(
-            Type type, Breed breed, Gender gender,String city, Pageable pageable
-    );
-    Page<AnnouncementResponce> getAllAnnouncement(int page, int size);
-    void createAnnouncement(Announcement announcement);
+    List<String> getPhotosByAnnouncementId(int announcementId);
+    Page<AnnouncementResponce> getByConsumerId(int consumerId,int page,int size);
+    Page<AnnouncementResponce> filter(
+            Type type, Breed breed, Gender gender,String city, int size, int page);
+    Page<AnnouncementResponce> getAll(int page, int size);
+    void create(Announcement announcement);
 
-    void updateAnnouncement(Announcement announcement);
-    void deleteAnnouncement(int announcementId);
+    void update(Announcement announcement);
+    void delete(int announcementId);
 
-    void addPhotoToEntityById(int announcementId, List<MultipartFile> files);
+    void addPhotoById(int announcementId, List<MultipartFile> files);
 
-
+    Announcement/*List<Announcement>*/ getById(int announcementId);
+    void deletePhotoById(int announcementId, String photoUrl);
 }

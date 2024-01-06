@@ -1,10 +1,14 @@
 package com.example.animal_search_engine.service.impl;
 
 import com.example.animal_search_engine.dto.responce.CommentResponce;
-import com.example.animal_search_engine.exception.CustomMessage;
+import com.example.animal_search_engine.exception.CustomException;
+import com.example.animal_search_engine.model.Announcement;
 import com.example.animal_search_engine.model.Comment;
+import com.example.animal_search_engine.model.Consumer;
 import com.example.animal_search_engine.repository.CommentRepository;
+import com.example.animal_search_engine.service.AnnouncementService;
 import com.example.animal_search_engine.service.CommentService;
+import com.example.animal_search_engine.service.ConsumerService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,55 +20,54 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.PageRequest;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 public class CommentServiceImp implements CommentService {
 
     CommentRepository commentRepository;
 
-
     @Transactional(readOnly = true)
-    public Page<CommentResponce> getCommentsByAnnouncementId(int id, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Comment> announcementPage = commentRepository.findByAnnouncementId(id,pageable);
-        if (announcementPage.isEmpty()) {
-            throw new CustomMessage("No announcements found", HttpStatus.NOT_FOUND);
+    public Page<CommentResponce> getByAnnouncementId(int announcementId, int page, int size) {
+        Page<Comment> commentPage = commentRepository.findAllByAnnouncementId(announcementId,PageRequest.of(page, size));
+        if (commentPage.isEmpty()) {
+            throw new CustomException("No comments found", HttpStatus.NOT_FOUND);
         }
-        return announcementPage.map(CommentResponce::new);
+        return commentPage.map(CommentResponce::new);
     }
 
 
-    @Transactional
-    public Page<CommentResponce> getCommentsByConsumerId(int id, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Comment> announcementPage = commentRepository.findByConsumerId(id,pageable);
-        if (announcementPage.isEmpty()) {
-            throw new CustomMessage("No announcements found", HttpStatus.NOT_FOUND);
-        }
-        return announcementPage.map(CommentResponce::new);
-    }
-
-
-
     @Transactional(readOnly = true)
-    public Comment getCommentById(int id) {
+    public CommentResponce getById(int commentId) {
+        Optional<Comment> comment = commentRepository.findById(commentId);
 
-       return commentRepository.findById(id)
-                .orElseThrow(() -> new CustomMessage("Announcement not found", HttpStatus.NOT_FOUND));
+        if (comment.isEmpty()) {
+            throw new CustomException(String.format("Comment not found by id %d", commentId), HttpStatus.NOT_FOUND);
         }
+        return comment.map(CommentResponce::new).get();
+
+    }
 
     @Override
-    public void createComment(Comment comment) {
+    public void create(Comment comment) {
         commentRepository.save(comment);
     }
 
     @Override
-    public void updateComment(Comment comment) {
+    public void update(Comment comment) {
+        if(comment.getId()!=0 && !commentRepository.existsById(comment.getId())){
+            throw new CustomException("There is no entity with such ID in the database.",HttpStatus.NOT_FOUND);
+        }
         commentRepository.save(comment);
     }
 
-    public void deleteCommentById( int id){
-        commentRepository.deleteById(id);
+    public void deleteById(int commentId){
+      if(!commentRepository.existsById(commentId)){
+          throw new CustomException("Comment not found by id", HttpStatus.NOT_FOUND);
+      }
+      commentRepository.deleteById(commentId);
     }
 }

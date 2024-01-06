@@ -1,4 +1,4 @@
-package com.example.animal_search_engine.dao.request;
+package com.example.animal_search_engine.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

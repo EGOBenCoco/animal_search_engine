@@ -4,6 +4,5 @@ public enum Type {
     DOG,
     CAT,
     HAMSTER,
-    FISH,
     PARROT
 }

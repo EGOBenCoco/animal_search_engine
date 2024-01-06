@@ -1,4 +1,4 @@
-package com.example.animal_search_engine.service;
+package com.example.animal_search_engine.security_utils;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

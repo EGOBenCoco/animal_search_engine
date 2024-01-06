@@ -1,72 +1,79 @@
 package com.example.animal_search_engine.service.impl;
 
-import com.example.animal_search_engine.dto.request.ConsumerRequest;
-import com.example.animal_search_engine.dto.responce.ConsumerResponce;
-import com.example.animal_search_engine.enums.Role;
-import com.example.animal_search_engine.exception.CustomMessage;
+import com.example.animal_search_engine.dto.request.ConsumerUpdateRequest;
+import com.example.animal_search_engine.dto.request.UpdatePasswordRequest;
+import com.example.animal_search_engine.exception.CustomException;
 import com.example.animal_search_engine.model.Consumer;
+import com.example.animal_search_engine.model.ContactInfo;
 import com.example.animal_search_engine.repository.ConsumerRepository;
+import com.example.animal_search_engine.service.AnnouncementService;
 import com.example.animal_search_engine.service.ConsumerService;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@Transactional
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ConsumerServiceImp implements ConsumerService {
     ConsumerRepository consumerRepository;
-
-    @Transactional
-    public Optional<Consumer> getConsumerById(int id)
-    {
-
-       return Optional.of( consumerRepository.findById(id).orElseThrow(
-                () -> new CustomMessage("User not found", HttpStatus.NOT_FOUND)
-        ));
-       // return Optional.of(new ConsumerResponce(consumer));
+    PasswordEncoder passwordEncoder;
+    @Override
+    @Transactional(readOnly = true)
+    public Consumer getById(int consumerId){
+        return consumerRepository.findById(consumerId)
+                .orElseThrow(() -> new CustomException("Consumer not found by id", HttpStatus.NOT_FOUND));
     }
 
-    public void createNewConsumer(Consumer consumer)
-    {
+    @Override
+    public void update(int consumerId, ConsumerUpdateRequest updateConsumer) {
+        consumerRepository.findById(consumerId).ifPresentOrElse(consumer ->
+        {
+            consumer.setFirstName(updateConsumer.getFirstName());
+            consumer.setLastName(updateConsumer.getLastName());
+            consumer.setEmail(updateConsumer.getEmail());
+            consumerRepository.save(consumer);
+        }, () -> {
+            throw new CustomException("Not found",HttpStatus.NOT_FOUND);
+        });
 
-        // Проверка наличия пользователя с таким email
-        if (consumerRepository.findByEmail(consumer.getEmail()).isPresent()) {
-            throw new CustomMessage("User with the same email already exists", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public void updatePassword(String login, UpdatePasswordRequest updatePasswordRequest) {
+        Consumer existingConsumer = consumerRepository.findByEmail(login).orElseThrow(() ->new CustomException( "Not found",HttpStatus.NOT_FOUND));
+
+        if (!passwordEncoder.matches(updatePasswordRequest.getOldPassword(), existingConsumer.getPassword())) {
+            throw new CustomException("Old password is incorrect", HttpStatus.BAD_REQUEST);
         }
-        // Создание нового пользователя
-        consumerRepository.save(consumer);
-    }
 
-    public void updateConsumer(ConsumerRequest consumerRequest) {
-        if (consumerRepository.findByEmail(consumerRequest.getEmail()).isPresent()) {
-            throw new CustomMessage("User with the same email already exists", HttpStatus.BAD_REQUEST);
+       else if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getConfirmPassword())) {
+            throw new CustomException("New password and confirm password do not match", HttpStatus.BAD_REQUEST);
         }
-        Consumer user = Consumer.builder()
-                .id(consumerRequest.getId())
-                .firstName(consumerRequest.getFirstName())
-                .lastName(consumerRequest.getLastName())
-                .email(consumerRequest.getEmail())
-                .password(consumerRequest.getPassword())
-                .contactInfos(consumerRequest.getContactInfos())
-                .role(Role.USER)
-                .build();
 
-        consumerRepository.save(user);
+        existingConsumer.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+        consumerRepository.save(existingConsumer);
     }
 
-    public void deleteConsumerById(int id)
-    {
-        if(!consumerRepository.existsById(id)) {
-            throw new CustomMessage("User not found for deletion", HttpStatus.NOT_FOUND);
 
+    public void deleteById(int consumerId) {
+
+        if(!consumerRepository.existsById(consumerId)){
+            throw new CustomException("Consumer not found",HttpStatus.NOT_FOUND);
         }
-        consumerRepository.deleteById(id);
-
+        consumerRepository.deleteById(consumerId);
     }
+
 }
