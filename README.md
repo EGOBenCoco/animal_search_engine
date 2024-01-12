@@ -59,9 +59,9 @@ Password: user
 
 ## Screenshots
 
-Adsdf filtering
+Ad filtering
 
-![Alt text](https://github.com/EGOBenCoco/photo_ReadMe/blob/main/add_photo.png)
+![Alt text](https://github.com/EGOBenCoco/photo_ReadMe/blob/main/add_photo.PNG?raw=true)
 
 
 Adding photos to Amazon S3:
