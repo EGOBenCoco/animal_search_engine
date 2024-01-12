@@ -61,7 +61,7 @@ Password: user
 
 Ad filtering
 
-![Alt text](https://github.com/EGOBenCoco/photo_ReadMe/blob/main/add_photo.PNG?raw=true)
+![Alt text](https://github.com/EGOBenCoco/photo_ReadMe/blob/main/add_photo.png)
 
 
 Adding photos to Amazon S3:
