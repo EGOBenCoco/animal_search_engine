@@ -61,12 +61,12 @@ Password: user
 
 Ad filtering
 
-![Alt text](C:\Users\EGO\Desktop\readMe\filter.png)
+![Alt text](https://github.com/EGOBenCoco/photo_ReadMe/blob/main/add_photo.PNG?raw=true)
 
 
 Adding photos to Amazon S3:
 
-![Alt text](C:\Users\EGO\Desktop\readMe\add_photo.png)
+![Alt text](htt)
 
 
 Receive an ad by id :
