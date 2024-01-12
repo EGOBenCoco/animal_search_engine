@@ -12,7 +12,6 @@ Password: user
 
 * Spring 3.1 (Boot, Data, Security, JWT)
 * Java 17
-* JPA
 * MYSQL
 * Maven
 * Junit
