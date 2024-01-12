@@ -59,7 +59,7 @@ Password: user
 
 ## Screenshots
 
-Ad filtering
+Adsdf filtering
 
 ![Alt text](https://github.com/EGOBenCoco/photo_ReadMe/blob/main/add_photo.png)
 
