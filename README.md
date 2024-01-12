@@ -76,8 +76,8 @@ Receive an ad by id :
 ## Deployment
 
 * To launch the application, follow these steps:
-  * 1 . Building the application
-  ```
+  * 1 . Building the application <br>
+```
   mvn clean install
   ```
   * 2 . Running Docker-Compose
