@@ -60,7 +60,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
     @Transactional(readOnly = true)
     public Announcement getById(int announcementId) {
 
-        return announcementRepository.findById(announcementId).orElseThrow(()->new CustomException("Not found",HttpStatus.NOT_FOUND));
+        return announcementRepository.findById(announcementId).orElseThrow(()->new CustomException("Announcement not found",HttpStatus.NOT_FOUND));
     }
 
     @Override

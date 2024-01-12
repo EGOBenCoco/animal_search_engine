@@ -24,6 +24,5 @@ public class SecuredConsumerServiceImpl implements UserDetailsService {
             throw new CustomException("Consumer account is disabled", HttpStatus.UNAUTHORIZED);
         }
         return new ConsumerDetailsAdapter(consumer);
-
     }
 }

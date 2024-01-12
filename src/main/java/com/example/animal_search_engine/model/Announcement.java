@@ -8,7 +8,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ public class Announcement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "announcement_id")
+    @Column(name = "ad_id")
     int id;
 
     @NotBlank(message = "Title is required")
@@ -49,15 +48,12 @@ public class Announcement {
     Animal animal;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    // @PrimaryKeyJoinColumn(name = "location_id")
     AnimalLocation animalLocation;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "announcement_photos", joinColumns = @JoinColumn(name = "announcement_id"))
+    @Builder.Default
+    @CollectionTable(name = "announcement_photos", joinColumns = @JoinColumn(name = "ad_id"))
     List<String> photoUrls = new ArrayList<>();
-
-    public Announcement(int id,String header){
-        this.id = id;
-        this.header = header;
-    }
 
 }

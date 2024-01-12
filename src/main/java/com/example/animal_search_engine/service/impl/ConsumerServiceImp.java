@@ -34,7 +34,7 @@ public class ConsumerServiceImp implements ConsumerService {
     @Transactional(readOnly = true)
     public Consumer getById(int consumerId){
         return consumerRepository.findById(consumerId)
-                .orElseThrow(() -> new CustomException("Consumer not found by id", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("Consumer not found", HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -46,7 +46,7 @@ public class ConsumerServiceImp implements ConsumerService {
             consumer.setEmail(updateConsumer.getEmail());
             consumerRepository.save(consumer);
         }, () -> {
-            throw new CustomException("Not found",HttpStatus.NOT_FOUND);
+            throw new CustomException("Consumer not found",HttpStatus.NOT_FOUND);
         });
 
     }

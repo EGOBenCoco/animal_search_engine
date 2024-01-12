@@ -3,10 +3,8 @@ package com.example.animal_search_engine.service.impl;
 import com.example.animal_search_engine.dto.request.ConsumerUpdateRequest;
 import com.example.animal_search_engine.dto.request.UpdatePasswordRequest;
 import com.example.animal_search_engine.exception.CustomException;
-import com.example.animal_search_engine.model.Comment;
 import com.example.animal_search_engine.model.Consumer;
 import com.example.animal_search_engine.repository.ConsumerRepository;
-import com.example.animal_search_engine.service.AnnouncementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +23,7 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ConsumerServiceImpTest {
+public class ConsumerServiceImpTest {
     private static final int EXISTING_CONSUMER_ID = 1;
     private static final int NON_EXISTING_ID = 2;
     @Mock
@@ -38,11 +36,11 @@ class ConsumerServiceImpTest {
     @Spy
     ConsumerServiceImp consumerServiceImp;
 
-    private Consumer consumer;
+    private Consumer expectedConsumer;
 
     @BeforeEach
-    public void setup() {
-        consumer = Consumer.builder()
+    public void setUp() {
+        expectedConsumer = Consumer.builder()
                 .id(1)
                 .firstName("Bob")
                 .lastName("Singer")
@@ -53,34 +51,33 @@ class ConsumerServiceImpTest {
 
     @Test
     public void should_Update_Password_When_OldPassword_IsCorrect() {
-        String login = "test@example.com";
+        String login = "bob@gmail.com";
         UpdatePasswordRequest updatePasswordRequest = new UpdatePasswordRequest();
         updatePasswordRequest.setOldPassword("12345");
         updatePasswordRequest.setNewPassword("newPassword");
         updatePasswordRequest.setConfirmPassword("newPassword");
 
-        when(consumerRepository.findByEmail(login)).thenReturn(Optional.of(consumer));
-        when(passwordEncoder.matches(updatePasswordRequest.getOldPassword(), consumer.getPassword())).thenReturn(true);
+        when(consumerRepository.findByEmail(login)).thenReturn(Optional.of(expectedConsumer));
+        when(passwordEncoder.matches(updatePasswordRequest.getOldPassword(), expectedConsumer.getPassword())).thenReturn(true);
 
         consumerServiceImp.updatePassword(login, updatePasswordRequest);
 
         verify(consumerRepository, times(1)).findByEmail(login);
-        verify(passwordEncoder, times(1)).matches(updatePasswordRequest.getOldPassword(), consumer.getPassword());
-        verify(consumerRepository, times(1)).save(consumer);
+        verify(passwordEncoder, times(1)).matches(updatePasswordRequest.getOldPassword(), expectedConsumer.getPassword());
+        verify(consumerRepository, times(1)).save(expectedConsumer);
     }
 
     @Test
     public void should_Throw_Bad_Request_Exception_When_OldPassword_Is_Incorrect() {
-        // Arrange
-        String login = "test@example.com";
+        String login = "bob@gmail.com";
         UpdatePasswordRequest updatePasswordRequest = new UpdatePasswordRequest();
         updatePasswordRequest.setOldPassword("wrongPassword");
         updatePasswordRequest.setNewPassword("newPassword");
         updatePasswordRequest.setConfirmPassword("newPassword");
 
 
-        when(consumerRepository.findByEmail(login)).thenReturn(Optional.of(consumer));
-        when(passwordEncoder.matches(updatePasswordRequest.getOldPassword(), consumer.getPassword())).thenReturn(false);
+        when(consumerRepository.findByEmail(login)).thenReturn(Optional.of(expectedConsumer));
+        when(passwordEncoder.matches(updatePasswordRequest.getOldPassword(), expectedConsumer.getPassword())).thenReturn(false);
 
         assertThrows(CustomException.class, () -> consumerServiceImp.updatePassword(login, updatePasswordRequest));
     }
@@ -103,7 +100,7 @@ class ConsumerServiceImpTest {
     @Test
     void should_Get_Consumer_ById_When_ExistingId() {
 
-        when(consumerRepository.findById(EXISTING_CONSUMER_ID)).thenReturn(Optional.of(consumer));
+        when(consumerRepository.findById(EXISTING_CONSUMER_ID)).thenReturn(Optional.of(expectedConsumer));
 
         Consumer actualConsumer = consumerServiceImp.getById(EXISTING_CONSUMER_ID);
 
@@ -127,13 +124,13 @@ class ConsumerServiceImpTest {
     void should_Update_Existing_Consumer() {
         ConsumerUpdateRequest consumerUpdateRequest = new ConsumerUpdateRequest(1, "Sam", "Winchester", "sam@gmail.com");
 
-        when(consumerRepository.findById(consumer.getId())).thenReturn(Optional.of(consumer));
-        when(consumerRepository.save(consumer)).thenReturn(consumer);
+        when(consumerRepository.findById(expectedConsumer.getId())).thenReturn(Optional.of(expectedConsumer));
+        when(consumerRepository.save(expectedConsumer)).thenReturn(expectedConsumer);
 
         consumerServiceImp.update(EXISTING_CONSUMER_ID, consumerUpdateRequest);
 
-        verify(consumerRepository, times(1)).findById(consumer.getId());
-        assertThat(consumerUpdateRequest.getFirstName()).isEqualTo(consumer.getFirstName());
+        verify(consumerRepository, times(1)).findById(expectedConsumer.getId());
+        assertThat(consumerUpdateRequest.getFirstName()).isEqualTo(expectedConsumer.getFirstName());
         assertThat(consumerUpdateRequest).isNotNull();
     }
 
@@ -171,7 +168,7 @@ class ConsumerServiceImpTest {
 
         assertThrows(CustomException.class, () -> consumerServiceImp.deleteById(NON_EXISTING_ID));
 
-        verify(consumerRepository, Mockito.never()).delete(consumer);
+        verify(consumerRepository, Mockito.never()).delete(expectedConsumer);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.animal_search_engine.controller;
 
+import com.example.animal_search_engine.AbstractContainerBaseTest;
 import com.example.animal_search_engine.dto.request.ConsumerUpdateRequest;
 import com.example.animal_search_engine.dto.request.UpdatePasswordRequest;
 import com.example.animal_search_engine.model.Consumer;
@@ -7,6 +8,7 @@ import com.example.animal_search_engine.service.ConsumerService;
 import com.example.animal_search_engine.security_utils.JwtService;
 import com.example.animal_search_engine.security_utils.SecuredConsumerServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,17 +19,24 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureMockMvc
+@Testcontainers
+@AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest
-public class ConsumerControllerTest {
+public class ConsumerControllerTest extends AbstractContainerBaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,7 +68,6 @@ public class ConsumerControllerTest {
         url = "http://localhost:8080/api/v1/consumers";
 
     }
-
 
     @Test
     @WithMockUser

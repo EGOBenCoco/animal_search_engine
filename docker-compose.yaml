@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8080:8080
+      - 9090:8080
     depends_on:
       mysql-container:
         condition: service_healthy
@@ -15,6 +15,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=qwerty
     networks:
       - for-example-boot
+
   mysql-container:
     image: mysql
     ports:
@@ -36,3 +37,7 @@ volumes:
 networks:
   for-example-boot:
     name: for-example-boot
+
+
+
+

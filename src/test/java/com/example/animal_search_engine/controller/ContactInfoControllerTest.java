@@ -1,12 +1,16 @@
 package com.example.animal_search_engine.controller;
 
+import com.example.animal_search_engine.AbstractContainerBaseTest;
 import com.example.animal_search_engine.enums.ContactType;
+import com.example.animal_search_engine.model.Consumer;
 import com.example.animal_search_engine.model.ContactInfo;
 import com.example.animal_search_engine.service.ContactInfosService;
 import com.example.animal_search_engine.security_utils.JwtService;
 import com.example.animal_search_engine.security_utils.SecuredConsumerServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,8 +18,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
@@ -25,9 +34,10 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-@AutoConfigureMockMvc
+@Testcontainers
+@AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest
-class ContactInfoControllerTest {
+public class ContactInfoControllerTest extends AbstractContainerBaseTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -41,21 +51,23 @@ class ContactInfoControllerTest {
     private SecuredConsumerServiceImpl securedConsumerService;
     private static String url;
 
-
-
+    private  ContactInfo contactInfo;
     @BeforeAll
     public static void setUp() {
         url = "http://localhost:8080/api/v1/contacts";
+    }
+    @BeforeEach
+    public void init() {
+        contactInfo = ContactInfo.builder()
+                .id(1)
+                .type(ContactType.EMAIL)
+                .value("Kasyanov")
+                .build();
     }
 
     @Test
     void should_retrieve_contact_infos_for_user() throws Exception {
         int consumerId = 1;
-        ContactInfo contactInfo = ContactInfo.builder()
-                .id(1)
-                .type(ContactType.EMAIL)
-                .value("example@gmail.com")
-                .build();
 
         when(contactInfosService.getByConsumerId(consumerId)).thenReturn(List.of(contactInfo));
 
@@ -69,12 +81,6 @@ class ContactInfoControllerTest {
 
     @Test
     void should_create_contact_info() throws Exception {
-        ContactInfo contactInfo = ContactInfo.builder()
-                .id(1)
-                .type(ContactType.EMAIL)
-                .value("example@gmail.com")
-                .build();
-
         doNothing().when(contactInfosService).create(contactInfo);
 
         mockMvc.perform(post(url)
@@ -90,12 +96,6 @@ class ContactInfoControllerTest {
 
     @Test
     void should_update_contact_info() throws Exception {
-        ContactInfo contactInfo = ContactInfo.builder()
-                .id(1)
-                .type(ContactType.EMAIL)
-                .value("example@gmail.com")
-                .build();
-
         doNothing().when(contactInfosService).update(contactInfo);
 
         mockMvc.perform(put(url)
@@ -112,7 +112,6 @@ class ContactInfoControllerTest {
         int contactId = 1;
 
         doNothing().when(contactInfosService).delete(contactId);
-
 
         mockMvc.perform(delete(url + "/{comment-id}", contactId)
                         .accept(MediaType.APPLICATION_JSON_VALUE))

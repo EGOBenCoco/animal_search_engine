@@ -32,8 +32,6 @@ public class JwtServiceImpl implements JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-
-
     private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         Set<String> roles = userDetails.getAuthorities()
                 .stream()

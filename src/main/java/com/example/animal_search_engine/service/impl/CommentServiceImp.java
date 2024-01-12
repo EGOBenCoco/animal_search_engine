@@ -34,7 +34,7 @@ public class CommentServiceImp implements CommentService {
     public Page<CommentResponce> getByAnnouncementId(int announcementId, int page, int size) {
         Page<Comment> commentPage = commentRepository.findAllByAnnouncementId(announcementId,PageRequest.of(page, size));
         if (commentPage.isEmpty()) {
-            throw new CustomException("No comments found", HttpStatus.NOT_FOUND);
+            throw new CustomException("Comment not found", HttpStatus.NOT_FOUND);
         }
         return commentPage.map(CommentResponce::new);
     }
@@ -45,7 +45,7 @@ public class CommentServiceImp implements CommentService {
         Optional<Comment> comment = commentRepository.findById(commentId);
 
         if (comment.isEmpty()) {
-            throw new CustomException(String.format("Comment not found by id %d", commentId), HttpStatus.NOT_FOUND);
+            throw new CustomException("Comment not found", HttpStatus.NOT_FOUND);
         }
         return comment.map(CommentResponce::new).get();
 
@@ -66,7 +66,7 @@ public class CommentServiceImp implements CommentService {
 
     public void deleteById(int commentId){
       if(!commentRepository.existsById(commentId)){
-          throw new CustomException("Comment not found by id", HttpStatus.NOT_FOUND);
+          throw new CustomException("Comment not found", HttpStatus.NOT_FOUND);
       }
       commentRepository.deleteById(commentId);
     }

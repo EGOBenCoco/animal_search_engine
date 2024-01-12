@@ -4,6 +4,8 @@ public enum Breed {
     POODLE,
     LABRADOR,
     CHIHUAHUA,
-    GOLDEN_RETRIEVER,
-    FRENCH_BULLDOG
+
+    SIBERIAN,
+    SCOTTISH_FOLD,
+    MAINE_COON
 }

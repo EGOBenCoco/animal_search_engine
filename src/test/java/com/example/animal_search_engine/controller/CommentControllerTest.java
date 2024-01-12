@@ -1,11 +1,13 @@
 package com.example.animal_search_engine.controller;
 
+import com.example.animal_search_engine.AbstractContainerBaseTest;
 import com.example.animal_search_engine.dto.responce.CommentResponce;
 import com.example.animal_search_engine.model.Comment;
 import com.example.animal_search_engine.service.CommentService;
 import com.example.animal_search_engine.security_utils.JwtService;
 import com.example.animal_search_engine.security_utils.SecuredConsumerServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -26,15 +30,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 //@ExtendWith(SpringExtension.class)
 //@Import(SecurityConfiguration.class)
 //@WebMvcTest(controllers = CommentController.class)
 
+@Testcontainers
 @AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest
-class CommentControllerTest {
+public class CommentControllerTest extends AbstractContainerBaseTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -51,7 +60,6 @@ class CommentControllerTest {
     private static String url;
 
     private Comment comment;
-
     @BeforeEach
     public void init(){
         comment = Comment.builder()
@@ -72,7 +80,7 @@ class CommentControllerTest {
 
         CommentResponce commentResponce = CommentResponce.builder()
                 .id(1)
-                .text("Test Comment")
+                .text("Comment")
                 .build();
         when(commentService.getByAnnouncementId(1, 0, 10))
                 .thenReturn(new PageImpl<>(List.of(commentResponce)));
@@ -81,6 +89,7 @@ class CommentControllerTest {
                         .param("page", "0")
                         .param("size", "10")
                         .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content[0].id",is (commentResponce.getId())))

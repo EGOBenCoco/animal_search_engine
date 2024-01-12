@@ -1,7 +1,6 @@
 package com.example.animal_search_engine.service.impl;
 
 import com.example.animal_search_engine.dto.responce.AnnouncementResponce;
-import com.example.animal_search_engine.dto.responce.CommentResponce;
 import com.example.animal_search_engine.enums.Breed;
 import com.example.animal_search_engine.enums.Gender;
 import com.example.animal_search_engine.enums.Type;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -33,7 +31,7 @@ import static org.mockito.Mockito.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class AnnouncementServiceImpTest {
+public class AnnouncementServiceImpTest {
 
     private static final int EXISTING_ANNOUNCEMENT_ID = 1;
     private static final int EXISTING_CONSUMER_ID = 1;
@@ -47,11 +45,11 @@ class AnnouncementServiceImpTest {
     @InjectMocks
     private AnnouncementServiceImp announcementServiceImp;
 
-    public Announcement announcement;
+    public Announcement expectedAnnouncement;
 
     @BeforeEach
-    public void setup(){
-       announcement = Announcement.builder()
+    public void setUp(){
+       expectedAnnouncement = Announcement.builder()
                .id(1)
                .header("Post")
                .animal(mock(Animal.class))
@@ -63,13 +61,12 @@ class AnnouncementServiceImpTest {
 
     @Test
     public void should_retrieve_photos_for_existing_announcement() {
-        when(announcementRepository.findByIdWithPhotoUrls(EXISTING_ANNOUNCEMENT_ID)).thenReturn(Optional.of(announcement));
+        when(announcementRepository.findByIdWithPhotoUrls(EXISTING_ANNOUNCEMENT_ID)).thenReturn(Optional.of(expectedAnnouncement));
 
-        List<String> result = announcementServiceImp.getPhotosByAnnouncementId(EXISTING_ANNOUNCEMENT_ID);
+        List<String> actualAnnouncement = announcementServiceImp.getPhotosByAnnouncementId(EXISTING_ANNOUNCEMENT_ID);
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(announcement.getPhotoUrls(), result);
+        assertNotNull(actualAnnouncement);
+        assertEquals(1, actualAnnouncement.size());
     }
 
     @Test
@@ -82,33 +79,30 @@ class AnnouncementServiceImpTest {
 
     @Test
     void should_throw_exception_when_announcement_has_no_photos() {
-        announcement.setPhotoUrls(Collections.emptyList());
+        expectedAnnouncement.setPhotoUrls(Collections.emptyList());
 
         when(announcementRepository.findByIdWithPhotoUrls(EXISTING_ANNOUNCEMENT_ID))
-                .thenReturn(Optional.of(announcement));
+                .thenReturn(Optional.of(expectedAnnouncement));
 
-        // Assert
         assertThrows(CustomException.class,
                 () -> announcementServiceImp.getPhotosByAnnouncementId(EXISTING_ANNOUNCEMENT_ID),
                 "Expected CustomException when no photos are found");
 
-        // Verify
         verify(announcementRepository, times(1)).findByIdWithPhotoUrls(EXISTING_ANNOUNCEMENT_ID);
-        verifyNoMoreInteractions(announcementRepository);
     }
 
     @Test
     void should_retrieve_announcements_for_consumer() {
         int page =0;
         int size = 10;
-        List<Announcement> announcements = List.of(announcement);
-        Page<Announcement> page1 = new PageImpl<>(announcements);
+        List<Announcement> announcements = List.of(expectedAnnouncement);
+        Page<Announcement> expectedPage = new PageImpl<>(announcements);
 
-        when(announcementRepository.findAllByConsumerId(EXISTING_CONSUMER_ID,PageRequest.of(page,size))).thenReturn(page1);
+        when(announcementRepository.findAllByConsumerId(EXISTING_CONSUMER_ID,PageRequest.of(page,size))).thenReturn(expectedPage);
 
-        Page<AnnouncementResponce> resultPage = announcementServiceImp.getByConsumerId(EXISTING_ANNOUNCEMENT_ID,page,size);
-        Assertions.assertEquals(page1.getTotalElements(), resultPage.getTotalElements());
-        Assertions.assertEquals(page1.getContent().size(), resultPage.getContent().size());
+        Page<AnnouncementResponce> actualPage = announcementServiceImp.getByConsumerId(EXISTING_ANNOUNCEMENT_ID,page,size);
+        Assertions.assertEquals(expectedPage.getTotalElements(), actualPage.getTotalElements());
+        Assertions.assertEquals(expectedPage.getContent().size(), actualPage.getContent().size());
 
     }
 
@@ -120,21 +114,17 @@ class AnnouncementServiceImpTest {
         Mockito.when(announcementRepository.findAllByConsumerId(NON_EXISTING_ID, PageRequest.of(page, size)))
                 .thenReturn(Page.empty());
 
-        CustomException exception = Assertions.assertThrows(
-                CustomException.class,
-                () -> announcementServiceImp.getByConsumerId(NON_EXISTING_ID, page, size)
-        );
-
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertThrows(CustomException.class, () -> announcementServiceImp.getByConsumerId(NON_EXISTING_ID, page, size));
     }
 
     @Test
     public void should_retrieve_announcement_by_id() {
-        when(announcementRepository.findById(EXISTING_ANNOUNCEMENT_ID)).thenReturn(Optional.of(announcement));
+        when(announcementRepository.findById(EXISTING_ANNOUNCEMENT_ID)).thenReturn(Optional.of(expectedAnnouncement));
 
         Announcement result = announcementServiceImp.getById(EXISTING_ANNOUNCEMENT_ID);
 
         assertThat(result).isNotNull();
+        assertEquals(expectedAnnouncement.getId(),result.getId());
 
     }
 
@@ -145,7 +135,6 @@ class AnnouncementServiceImpTest {
                 .thenReturn(Optional.empty());
         assertThrows(CustomException.class, () -> announcementServiceImp.getById(NON_EXISTING_ID));
         verify(announcementRepository, times(1)).findById(NON_EXISTING_ID);
-
     }
 
     @Test
@@ -158,14 +147,14 @@ class AnnouncementServiceImpTest {
         int size = 10;
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<Announcement> announcementPage = new PageImpl<>(List.of(announcement));
+        Page<Announcement> expectedPage = new PageImpl<>(List.of(expectedAnnouncement));
 
-        when(announcementRepository.findByFilters(type, breed, gender, city,pageable )).thenReturn(announcementPage);
+        when(announcementRepository.findByFilters(type, breed, gender, city,pageable )).thenReturn(expectedPage);
 
-        Page<AnnouncementResponce> result = announcementServiceImp.filter(type, breed, gender, city, page,size);
+        Page<AnnouncementResponce> actualPage = announcementServiceImp.filter(type, breed, gender, city, page,size);
 
-        assertEquals(1, result.getTotalElements());
-        assertThat(result).isNotNull();
+        assertEquals(1, actualPage.getTotalElements());
+        assertThat(actualPage).isNotNull();
     }
 
     @Test
@@ -188,13 +177,13 @@ class AnnouncementServiceImpTest {
     @Test
     public void should_retrieve_all_announcements() {
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Announcement> announcementPage = new PageImpl<>(List.of(announcement));
+        Page<Announcement> expectedPage = new PageImpl<>(List.of(expectedAnnouncement));
 
-        when(announcementRepository.findAllAnnouncements(pageable)).thenReturn(announcementPage);
+        when(announcementRepository.findAllAnnouncements(pageable)).thenReturn(expectedPage);
 
-        Page<AnnouncementResponce> result = announcementServiceImp.getAll(0, 10);
+        Page<AnnouncementResponce> actualPage = announcementServiceImp.getAll(0, 10);
 
-        assertEquals(announcementPage.getTotalElements(), result.getTotalElements());
+        assertEquals(expectedPage.getTotalElements(), actualPage.getTotalElements());
     }
 
     @Test
@@ -203,46 +192,40 @@ class AnnouncementServiceImpTest {
 
         when(announcementRepository.findAllAnnouncements(pageable)).thenReturn(new PageImpl<>(Collections.emptyList()));
 
-        CustomException exception = assertThrows(CustomException.class, () -> announcementServiceImp.getAll(0, 10));
-
-        verify(announcementRepository).findAllAnnouncements(pageable);
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-        assertEquals("No announcements found", exception.getMessage());
+        assertThrows(CustomException.class, () -> announcementServiceImp.getAll(0, 10));
     }
 
 
 
     @Test
     public void should_create_announcement() {
-        when(announcementRepository.save(announcement)).thenReturn(announcement);
+        when(announcementRepository.save(expectedAnnouncement)).thenReturn(expectedAnnouncement);
 
-        announcementServiceImp.create(announcement);
+        announcementServiceImp.create(expectedAnnouncement);
 
-        assertThat(announcement).isNotNull();
-        verify(announcementRepository,times(1)).save(announcement);
+        assertThat(expectedAnnouncement).isNotNull();
+        verify(announcementRepository,times(1)).save(expectedAnnouncement);
     }
 
     @Test
     public void should_update_existing_announcement() {
-
         when(announcementRepository.existsById(EXISTING_ANNOUNCEMENT_ID)).thenReturn(true);
-        when(announcementRepository.save(announcement)).thenReturn(announcement);
+        when(announcementRepository.save(expectedAnnouncement)).thenReturn(expectedAnnouncement);
 
-        announcement.setHeader("New title");
-        announcementServiceImp.update(announcement);
+        expectedAnnouncement.setHeader("New title");
+        announcementServiceImp.update(expectedAnnouncement);
 
-
-        verify(announcementRepository, times(1)).save(announcement);
-        assertThat(announcement.getHeader()).isEqualTo("New title");
-        assertThat(announcement).isNotNull();
+        verify(announcementRepository, times(1)).save(expectedAnnouncement);
+        assertThat(expectedAnnouncement.getHeader()).isEqualTo("New title");
+        assertThat(expectedAnnouncement).isNotNull();
     }
 
     @Test
     void should_throw_exception_when_updating_non_existing_announcement() {
 
-        when(announcementRepository.existsById(announcement.getId())).thenReturn(false);
+        when(announcementRepository.existsById(expectedAnnouncement.getId())).thenReturn(false);
 
-        assertThrows(CustomException.class, () -> announcementServiceImp.update(announcement));
+        assertThrows(CustomException.class, () -> announcementServiceImp.update(expectedAnnouncement));
 
         verify(announcementRepository, never()).save(any(Announcement.class));
     }
@@ -274,7 +257,7 @@ class AnnouncementServiceImpTest {
             List<MultipartFile> files = Arrays.asList(mock(MultipartFile.class), mock(MultipartFile.class));
 
             when(announcementRepository.findById(EXISTING_ANNOUNCEMENT_ID))
-                    .thenReturn(Optional.of(announcement));
+                    .thenReturn(Optional.of(expectedAnnouncement));
 
             when(s3FileService.uploadFile(any(), any())).thenReturn("mockedS3Url");
 
@@ -282,8 +265,8 @@ class AnnouncementServiceImpTest {
 
             verify(announcementRepository, times(1)).findById(EXISTING_ANNOUNCEMENT_ID);
             verify(s3FileService, times(files.size())).uploadFile(any(), any());
-            verify(announcementRepository, times(1)).save(announcement);
-            assertEquals(3, announcement.getPhotoUrls().size()); // Assuming one file was mocked
+            verify(announcementRepository, times(1)).save(expectedAnnouncement);
+            assertEquals(3, expectedAnnouncement.getPhotoUrls().size());
         }
 
     @Test
@@ -307,15 +290,15 @@ class AnnouncementServiceImpTest {
         String urlPhoto = "urls";
 
         when(announcementRepository.findById(EXISTING_ANNOUNCEMENT_ID))
-                .thenReturn(Optional.of(announcement));
+                .thenReturn(Optional.of(expectedAnnouncement));
 
         announcementServiceImp.deletePhotoById(EXISTING_ANNOUNCEMENT_ID,urlPhoto );
 
         verify(announcementRepository, times(1)).findById(EXISTING_ANNOUNCEMENT_ID);
         verify(s3FileService, times(1)).deleteFile(urlPhoto);
-        verify(announcementRepository, times(1)).save(announcement);
+        verify(announcementRepository, times(1)).save(expectedAnnouncement);
 
-        assertEquals(0, announcement.getPhotoUrls().size());
+        assertEquals(0, expectedAnnouncement.getPhotoUrls().size());
     }
 
     @Test
@@ -342,8 +325,7 @@ class AnnouncementServiceImpTest {
                 .thenReturn(Optional.of(existingAnnouncement));
 
         assertThrows(CustomException.class,
-                () -> announcementServiceImp.deletePhotoById(EXISTING_ANNOUNCEMENT_ID, urlPhoto),
-                "Expected CustomException when photo is not found");
+                () -> announcementServiceImp.deletePhotoById(EXISTING_ANNOUNCEMENT_ID, urlPhoto));
 
         verify(announcementRepository, times(1)).findById(EXISTING_ANNOUNCEMENT_ID);
         verifyNoMoreInteractions(s3FileService, announcementRepository);

@@ -27,6 +27,21 @@ public class ContactInfosServiceImp implements ContactInfosService {
     ContactInfosRepository contactInfosRepository;
 
     @Override
+    @Transactional(readOnly = true)
+    public ContactInfo getById(int id) {
+        return contactInfosRepository.findById(id).orElseThrow(()-> new CustomException("Not found",HttpStatus.NOT_FOUND));
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<ContactInfo> getByConsumerId(int  consumerId) {
+        List<ContactInfo> contactInfoList = contactInfosRepository.findByConsumerId(consumerId);
+
+        if(contactInfoList.isEmpty()){
+            throw new CustomException("Contact not found",HttpStatus.NOT_FOUND);
+        }
+        return contactInfoList;
+    }
+    @Override
     public void create(ContactInfo contactInfo) {
         contactInfosRepository.save(contactInfo);
     }
@@ -39,30 +54,12 @@ public class ContactInfosServiceImp implements ContactInfosService {
         }
         contactInfosRepository.save(contactInfo);
     }
-
     @Override
     public void delete(int contactId)  {
         if(!contactInfosRepository.existsById(contactId)){
             throw new CustomException("Contact not found",HttpStatus.NOT_FOUND);
         }
         contactInfosRepository.deleteById(contactId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ContactInfo> getByConsumerId(int  consumerId) {
-        List<ContactInfo> contactInfoList = contactInfosRepository.findByConsumerId(consumerId);
-
-        if(contactInfoList.isEmpty()){
-            throw new CustomException("Contact not found",HttpStatus.NOT_FOUND);
-        }
-        return contactInfoList;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ContactInfo getById(int id) {
-        return contactInfosRepository.findById(id).orElseThrow(()-> new CustomException("Not found",HttpStatus.NOT_FOUND));
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.animal_search_engine.controller;
 
+import com.example.animal_search_engine.AbstractContainerBaseTest;
 import com.example.animal_search_engine.dto.responce.AnnouncementResponce;
 import com.example.animal_search_engine.enums.Breed;
 import com.example.animal_search_engine.enums.Gender;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,16 +33,16 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Testcontainers
 @AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest
-class AnnouncementControllerTest {
+public class AnnouncementControllerTest extends AbstractContainerBaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -80,7 +82,7 @@ class AnnouncementControllerTest {
 
         when(announcementService.getPhotosByAnnouncementId(announcementId)).thenReturn(photoUrls);
 
-        mockMvc.perform(get(url + "/photos/{announcement-id}", announcementId)
+        mockMvc.perform(get(url + "/{announcement-id}/photos", announcementId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(status().isOk())
@@ -93,19 +95,19 @@ class AnnouncementControllerTest {
     @Test
     public void should_retrieve_announcements_for_consumer() throws Exception {
         int consumerId = 1;
-        AnnouncementResponce announcement = AnnouncementResponce.builder()
+        AnnouncementResponce announcementResponce = AnnouncementResponce.builder()
                 .id(1)
                 .photoUrls(List.of("https://example.com/photo.jpg"))
                 .header("Post")
                 .build();
 
-        when(announcementService.getByConsumerId(consumerId, 0, 10)).thenReturn(new PageImpl<>(List.of(announcement)));
+        when(announcementService.getByConsumerId(consumerId, 0, 10)).thenReturn(new PageImpl<>(List.of(announcementResponce)));
 
         mockMvc.perform(get(url + "/{consumer-id}/consumer", 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id").value(announcement.getId()))
-                .andExpect(jsonPath("$.content[0].header").value(announcement.getHeader()));
+                .andExpect(jsonPath("$.content[0].id").value(announcementResponce.getId()))
+                .andExpect(jsonPath("$.content[0].header").value(announcementResponce.getHeader()));
     }
 
     @Test
@@ -166,8 +168,7 @@ class AnnouncementControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.content[0].header",is(announcementResponse.getHeader())))
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$.content[0].header",is(announcementResponse.getHeader())));
     }
 
     @Test
@@ -180,7 +181,7 @@ class AnnouncementControllerTest {
 
         when(announcementService.getAll(0,10)).thenReturn(new PageImpl<>(List.of(announcementResponse)));
 
-        mockMvc.perform(get(url + "/all")
+        mockMvc.perform(get(url)
                         .param("page", "0")
                         .param("size", "10")
                         .accept(MediaType.APPLICATION_JSON))

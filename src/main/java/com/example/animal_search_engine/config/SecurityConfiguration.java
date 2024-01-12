@@ -30,7 +30,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                         .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/signup","api/auth/signin").permitAll())
+                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/signup","api/v1/auth/signin").permitAll())
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/block-user","api/auth/unblock-user").hasRole("ADMIN"))
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/contacts/**").hasAnyRole("USER","ADMIN"))
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/comments/**").hasAnyRole("USER","ADMIN"))

@@ -7,18 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
-
 public record ConsumerDetailsAdapter(Consumer consumer) implements ConsumerAdapter {
-
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return consumer.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .toList();
     }
-
 
     @Override
     public String getPassword() {
@@ -36,10 +31,7 @@ public record ConsumerDetailsAdapter(Consumer consumer) implements ConsumerAdapt
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return consumer.isEnabled();
-
-    }
+    public boolean isAccountNonLocked() {return consumer.isEnabled();}
 
     @Override
     public boolean isCredentialsNonExpired() {
@@ -50,6 +42,5 @@ public record ConsumerDetailsAdapter(Consumer consumer) implements ConsumerAdapt
     public boolean isEnabled() {
         return consumer.isEnabled();
     }
-
 
 }

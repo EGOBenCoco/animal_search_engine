@@ -23,6 +23,7 @@ public class Comment {
     int id;
 
     @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;
 
@@ -35,7 +36,7 @@ public class Comment {
     Consumer consumer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "announcement_id")
+    @JoinColumn(name = "ad_id")
     Announcement announcement;
 
 
