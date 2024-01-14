@@ -46,7 +46,7 @@ Password: user
   *  City
 
 
-* View all ads with paginations
+* View all ads with pagination
 * View ad details
 * Adding comments to ads
 * Editing and deleting your ads
