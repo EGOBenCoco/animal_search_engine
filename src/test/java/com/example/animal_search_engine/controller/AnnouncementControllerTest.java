@@ -85,7 +85,6 @@ public class AnnouncementControllerTest extends AbstractContainerBaseTest {
         mockMvc.perform(get(url + "/{announcement-id}/photos", announcementId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(photoUrls.size()))
