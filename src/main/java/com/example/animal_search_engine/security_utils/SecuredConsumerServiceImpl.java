@@ -18,8 +18,8 @@ public class SecuredConsumerServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Consumer consumer = consumerRepository.findByEmail(username).orElseThrow();
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Consumer consumer = consumerRepository.findByEmail(email).orElseThrow();
         if (!consumer.isEnabled()) {
             throw new CustomException("Consumer account is disabled", HttpStatus.UNAUTHORIZED);
         }
