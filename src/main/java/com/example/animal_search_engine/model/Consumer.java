@@ -29,14 +29,12 @@ public class Consumer {
     @Column(name = "last_name")
     String lastName;
 
-    @NotNull(message = "Email is required")
     @NotEmpty
     @Email
     @Pattern(regexp=".+@.+\\..+")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String email;
 
-    @NotNull(message = "Password is required")
     @NotEmpty
     @Size(min = 8, max = 64,message = "The size should vary from 8 to 64")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
